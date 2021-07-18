@@ -19,7 +19,7 @@ def preparar_arquivos():
 def create_app():
     app = Flask(__name__)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/banco_bases.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:////tmp/banco_bases.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # configuração de banco

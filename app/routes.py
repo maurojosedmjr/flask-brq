@@ -54,5 +54,8 @@ class ApiPrecoMedio(Resource):
         lista_de_resultados, status_code = recuperar_dados_por_vizinhanca(
             session, PrecoMedio, args
         )
+        if not isinstance(lista_de_resultados, list):
+            return lista_de_resultados, status_code
 
+        print("-----------------------", lista_de_resultados[0])
         return [vizinhanca.to_json() for vizinhanca in lista_de_resultados], status_code
