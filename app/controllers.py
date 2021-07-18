@@ -2,7 +2,6 @@ import pandas as pd
 import os
 from typing import Optional
 import json
-import sqlite3
 
 
 def tratar_csv_para_dataframe(

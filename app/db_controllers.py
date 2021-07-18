@@ -20,6 +20,18 @@ def recuperar_dados_por_vizinhanca(
         return {"error": "Algo deu errado. Contate o suporte."}, 400
 
 
+def atualiza_like_residencia(session, model, filtro, update):
+    registro = session.query(model).filter(model.id == filtro)
+    try:
+        registro.update({model.like: update})
+        session.commit()
+    except Exception as err:
+        print(str(err))
+        return {"error": "Algo deu errado. Contate o suporte."}, 400
+
+    return {"success": "Registro atualizado com sucesso"}, 201
+
+
 def inserir_ou_atualizar_linha(
     session, model, data, filtro
 ) -> Tuple[Dict[str, str], int]:

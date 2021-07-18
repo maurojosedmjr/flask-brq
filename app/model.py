@@ -26,6 +26,7 @@ class Residencias(db.Model):
     calculated_host_listings_count = db.Column(db.Integer)
     availability_365 = db.Column(db.Integer)
     neighbourhood_group = db.Column(db.String(150))
+    like = db.Column(db.Boolean, default=False)
 
     def to_json(self):
         return {
@@ -45,6 +46,7 @@ class Residencias(db.Model):
             "reviews_per_month": self.reviews_per_month,
             "calculated_host_listings_count": self.calculated_host_listings_count,
             "availability_365": self.availability_365,
+            "like": self.like or False,
         }
 
 
