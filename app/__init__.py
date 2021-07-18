@@ -1,8 +1,19 @@
 from flask import Flask
-from flask_restx import Resource, Api
+from flask_restx import Api
 from .model import configure_db
 from flask_migrate import Migrate
-from .routes import ns_residencia
+from .routes import ns_residencia, ns_preco_media
+import os
+
+
+def preparar_arquivos():
+    csvs_necessarios = ["media_preco.csv", "media_preco_df.csv", "residencias.csv"]
+    if not all(
+        [filename in os.listdir("./app/bases") for filename in csvs_necessarios]
+    ):
+        from app.controllers import processar_dataframes
+
+        processar_dataframes()
 
 
 def create_app():
@@ -25,9 +36,13 @@ def create_app():
     )
 
     api.add_namespace(ns_residencia)
+    api.add_namespace(ns_preco_media)
+
+    # gerando os arquivos base
+    preparar_arquivos()
 
     return app
 
 
 if __name__ == "__main__":
-    create_app()
+    app = create_app()

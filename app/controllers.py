@@ -2,6 +2,7 @@ import pandas as pd
 import os
 from typing import Optional
 import json
+import sqlite3
 
 
 def tratar_csv_para_dataframe(
@@ -12,7 +13,8 @@ def tratar_csv_para_dataframe(
 ) -> pd.DataFrame:
     if not os.path.exists(caminho_do_arquivo):
         raise Exception(
-            "ArquinhoNaoEncontrado", "O arquivo informado não foi encontrado"
+            "ArquinhoNaoEncontrado",
+            f"O arquivo informado não foi encontrado {caminho_do_arquivo}",
         )
     elif not chave:
         raise Exception("ChaveNaoInformada", "A chave do arquivo não foi informada")
@@ -32,15 +34,15 @@ def tratar_csv_para_dataframe(
     df_origem.drop_duplicates(subset=chave, inplace=True)
 
     # removendo linhas vazias
-    df_origem = df_origem.dropna(inplace=True)
+    df_origem.dropna(inplace=True)
 
     return df_origem
 
 
 def processar_dataframes():
-    df_airbnb = tratar_csv_para_dataframe("./bases/airbnb_ny_2019.csv", chave="id")
+    df_airbnb = tratar_csv_para_dataframe("./app/bases/airbnb_ny_2019.csv", chave="id")
     df_map_vizinhanca = tratar_csv_para_dataframe(
-        "./bases/mapeamento_vizinhanca.csv",
+        "./app/bases/mapeamento_vizinhanca.csv",
         chave="vizinhanca",
         separador=";",
         dropar_linhas_com_erros=False,
@@ -59,21 +61,30 @@ def processar_dataframes():
 
     df_filtrado = df_airbnb_vizinhanca.query(
         "neighbourhood_group in ['Brooklyn', 'Manhattan', 'Queens', 'Staten Island']"
-    ).to_csv("./bases/residencias.csv", sep=",", index=False)
+    )
 
-    df_filtrado.to_csv("./bases/residencias.csv", sep=",", index=False)
+    df_filtrado.to_csv("./app/bases/residencias.csv", sep=",", index=False)
 
     df_filtrado.groupby(["neighbourhood_group", "room_type"])["price"].mean().to_json(
-        "./bases/media_preco.csv", orient="split"
+        "./app/bases/media_preco.csv", orient="split"
     )
 
-    parsed = (
-        df_filtrado.groupby(["neighbourhood_group", "room_type"])["price"]
-        .mean()
-        .to_json(orient="table")
+    parsed = df_filtrado.groupby(["neighbourhood_group", "room_type"])["price"].mean()
+
+    # gerando também um csv a partir do series pra ficar mais fácil de popular o banco de dados
+    linhas = []
+    for r in parsed.to_frame().iterrows():
+        linhas.append([r[0][0], r[0][1], r[1][0]])
+    df_parsed = pd.DataFrame(
+        linhas, columns=["neighbourhood_group", "room type", "price"]
     )
+    df_parsed.to_csv("./app/bases/media_preco_df.csv", sep=",", index=False)
+
+    parsed = parsed.to_json(orient="table")
+
     parsed = json.loads(parsed)
     data = parsed["data"]
 
-    with open("./bases/media_preco.csv", "w") as f:
+    # no exercício fala pra gerar um csv do json, eu fiz pq foi pedido, mas achei estranho
+    with open("./app/bases/media_preco.csv", "w") as f:
         json.dump(data, f)

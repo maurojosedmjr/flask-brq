@@ -2,12 +2,19 @@ import json
 from typing import Dict, Tuple
 
 
-def recuperar_dados(session, model, filtro=None) -> Tuple[Dict[str, str], int]:
+def recuperar_dados_por_vizinhanca(
+    session, model, filtro
+) -> Tuple[Dict[str, str], int]:
     query = session.query(model)
     try:
-        if filtro:
-            return query.filter(filtro), 200
-        return query.all(), 200
+        return (
+            list(
+                query.filter(
+                    model.neighbourhood_group == filtro.get("neighbourhood_group", "")
+                )
+            ),
+            200,
+        )
     except Exception as err:
         print(str(err))
         return {"error": "Algo deu errado. Contate o suporte."}, 400
@@ -19,7 +26,7 @@ def inserir_ou_atualizar_linha(
     acao: str = "inserido"
     try:
         if filtro:
-            registro = recuperar_dados(session, model, filtro)
+            registro = recuperar_dados_por_vizinhanca(session, model, filtro)
             if registro:
                 acao = "atualizado"
                 registro.update(**data)

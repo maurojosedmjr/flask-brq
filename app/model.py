@@ -46,3 +46,17 @@ class Residencias(db.Model):
             "calculated_host_listings_count": self.calculated_host_listings_count,
             "availability_365": self.availability_365,
         }
+
+
+class PrecoMedio(db.Model):
+    id_preco_medio = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    neighbourhood_group = db.Column(db.String(150))
+    room_type = db.Column(db.String(150))
+    price = db.Column(db.Float)
+
+    def to_json(self):
+        return {
+            "neighbourhood_group": self.neighbourhood_group,
+            "room_type": self.room_type,
+            "price": self.price,
+        }
