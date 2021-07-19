@@ -7,6 +7,7 @@
 - Flask Migrate
 - Pandas
 - SQLite3
+- Docker
 
 ### Primeiro
 Instalar as dependências
